@@ -38,8 +38,8 @@ def call(body) {
   } else {
     env.MYSQL_PASSWORD = config.MYSQL_PASSWORD
   }
-  if (!config.CAP_VERSION) {
-    env.CAP_VERSION = "3"
+  if (!config.config.CAP_VERSION) {
+    config.config.CAP_VERSION = "3"
   }
   if (!config.SLACK_CHANNEL) {
     config.SLACK_CHANNEL = '#deploys'
@@ -112,7 +112,7 @@ def call(body) {
             stage('Install Dependancies') {
               milestone label: 'Install Dependancies'
               retry(2) {
-                rvm('bundle install')
+                railsRvm('bundle install')
               }
               currentBuild.result = 'SUCCESS'
             }
@@ -129,7 +129,7 @@ def call(body) {
             stage('Load Schema') {
               milestone label: 'Load Schema'
               retry(2) {
-                rvm('rake db:schema:load')
+                railsRvm('rake db:schema:load')
               }
               currentBuild.result = 'SUCCESS'
             }
@@ -160,7 +160,7 @@ def call(body) {
                   }
               }
               else {
-                rvm("rake ${test_framework}" )
+                railsRvm("rake ${test_framework}" )
               }
               junit allowEmptyResults: true, keepLongStdio: true, testResults: 'testresults/*.xml'
               currentBuild.result = 'SUCCESS'
@@ -180,58 +180,56 @@ def call(body) {
               milestone label: 'Deploy'
               if (config.DEPLOY_VARS) {
                 withCredentials(config.DEPLOY_VARS) {
-                  if (CAP_VERSION == '3'){
+                  if (config.config.CAP_VERSION == '3'){
                     if (env.BRANCH_NAME == 'master') {
-                      rvm('cap prod deploy')
+                      railsRvm('cap prod deploy')
                     }
                     else if(env.BRANCH_NAME == 'stage') {
-                      rvm('cap stage deploy')
+                      railsRvm('cap stage deploy')
                     }
                     else if(env.BRANCH_NAME == 'dev') {
-                      rvm('cap dev deploy')
+                      railsRvm('cap dev deploy')
                     }
                     railsOtherBuildEnvs()
                   }
-                  if (CAP_VERSION == '2'){
+                  if (config.CAP_VERSION == '2'){
                     if (env.BRANCH_NAME == 'master') {
-                      rvm('cap deploy -S loc=prod')
+                      railsRvm('cap deploy -S loc=prod')
                     }
                     else if(env.BRANCH_NAME == 'stage') {
-                      rvm('cap deploy -S loc=stage -S branch=stage')
+                      railsRvm('cap deploy -S loc=stage -S branch=stage')
                     }
                     else if(env.BRANCH_NAME == 'dev') {
-                      rvm('cap deploy -S loc=dev -S branch=dev')
+                      railsRvm('cap deploy -S loc=dev -S branch=dev')
                     }
                     railsOtherBuildEnvs()
                   }
                 }
               }
               else {
-                withCredentials() {
-                  if (CAP_VERSION == '3'){
-                    if (env.BRANCH_NAME == 'master') {
-                      rvm('cap prod deploy')
-                    }
-                    else if(env.BRANCH_NAME == 'stage') {
-                      rvm('cap stage deploy')
-                    }
-                    else if(env.BRANCH_NAME == 'dev') {
-                      rvm('cap dev deploy')
-                    }
-                    railsOtherBuildEnvs()
+                if (config.CAP_VERSION == '3'){
+                  if (env.BRANCH_NAME == 'master') {
+                    railsRvm('cap prod deploy')
                   }
-                  if (CAP_VERSION == '2'){
-                    if (env.BRANCH_NAME == 'master') {
-                      rvm('cap deploy -S loc=prod')
-                    }
-                    else if(env.BRANCH_NAME == 'stage') {
-                      rvm('cap deploy -S loc=stage -S branch=stage')
-                    }
-                    else if(env.BRANCH_NAME == 'dev') {
-                      rvm('cap deploy -S loc=dev -S branch=dev')
-                    }
-                    railsOtherBuildEnvs()
+                  else if(env.BRANCH_NAME == 'stage') {
+                    railsRvm('cap stage deploy')
                   }
+                  else if(env.BRANCH_NAME == 'dev') {
+                    railsRvm('cap dev deploy')
+                  }
+                  railsOtherBuildEnvs()
+                }
+                if (config.CAP_VERSION == '2'){
+                  if (env.BRANCH_NAME == 'master') {
+                    railsRvm('cap deploy -S loc=prod')
+                  }
+                  else if(env.BRANCH_NAME == 'stage') {
+                    railsRvm('cap deploy -S loc=stage -S branch=stage')
+                  }
+                  else if(env.BRANCH_NAME == 'dev') {
+                    railsRvm('cap deploy -S loc=dev -S branch=dev')
+                  }
+                  railsOtherBuildEnvs()
                 }
               }
               currentBuild.result = 'SUCCESS'
@@ -253,6 +251,7 @@ def call(body) {
               sql connection: 'test_db', sql: "REVOKE ALL PRIVILEGES, GRANT OPTION FROM ${env.MYSQL_USER}@'%';"
               echo "SQL: REVOKE ALL PRIVILEGES, GRANT OPTION FROM ${env.MYSQL_USER}@'%';"
               sql connection: 'test_db', sql: "DROP USER ${env.MYSQL_USER}@'%';"
+              echo "SQL: DROP USER ${env.MYSQL_USER}@'%';"
               currentBuild.result = 'SUCCESS'
             }
           } catch(Exception e) {
