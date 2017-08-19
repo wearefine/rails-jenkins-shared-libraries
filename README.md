@@ -69,6 +69,7 @@ rails {
 - **RUBY_VERSION:** Ruby version to use. [String]
 - **RUBY_GEMSET**: Name of the gemset to create. [String]
 - **NODE_INSTALL_NAME:** Nodejs plugin uses names to identify installs in Jenkins, enter that value here [String]
+- **SSH_AGENT_ID:** Capistrano uses SSH to deploy code so you need to add the sshagent plugin and give the credentialsId here. [String]
 
 ### Optional Parameters
 

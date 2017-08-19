@@ -51,6 +51,9 @@ def call(body) {
   if (!config.NODE_INSTALL_NAME) {
     error 'NODE_INSTALL_NAME is required'
   }
+  if (!config.SSH_AGENT_ID) {
+    error 'SSH_AGENT_ID is required'
+  }
 
   node {
     timestamps {
@@ -178,8 +181,36 @@ def call(body) {
           try {
             stage('Deploy') {
               milestone label: 'Deploy'
-              if (config.DEPLOY_VARS) {
-                withCredentials(config.DEPLOY_VARS) {
+              sshagent([config.SSH_AGENT_ID]) {
+                if (config.DEPLOY_VARS) {
+                  withCredentials(config.DEPLOY_VARS) {
+                    if (config.CAP_VERSION == '3'){
+                      if (env.BRANCH_NAME == 'master') {
+                        railsRvm('cap prod deploy')
+                      }
+                      else if(env.BRANCH_NAME == 'stage') {
+                        railsRvm('cap stage deploy')
+                      }
+                      else if(env.BRANCH_NAME == 'dev') {
+                        railsRvm('cap dev deploy')
+                      }
+                      railsOtherBuildEnvs()
+                    }
+                    if (config.CAP_VERSION == '2'){
+                      if (env.BRANCH_NAME == 'master') {
+                        railsRvm('cap deploy -S loc=prod')
+                      }
+                      else if(env.BRANCH_NAME == 'stage') {
+                        railsRvm('cap deploy -S loc=stage -S branch=stage')
+                      }
+                      else if(env.BRANCH_NAME == 'dev') {
+                        railsRvm('cap deploy -S loc=dev -S branch=dev')
+                      }
+                      railsOtherBuildEnvs()
+                    }
+                  }
+                }
+                else {
                   if (config.CAP_VERSION == '3'){
                     if (env.BRANCH_NAME == 'master') {
                       railsRvm('cap prod deploy')
@@ -204,32 +235,6 @@ def call(body) {
                     }
                     railsOtherBuildEnvs()
                   }
-                }
-              }
-              else {
-                if (config.CAP_VERSION == '3'){
-                  if (env.BRANCH_NAME == 'master') {
-                    railsRvm('cap prod deploy')
-                  }
-                  else if(env.BRANCH_NAME == 'stage') {
-                    railsRvm('cap stage deploy')
-                  }
-                  else if(env.BRANCH_NAME == 'dev') {
-                    railsRvm('cap dev deploy')
-                  }
-                  railsOtherBuildEnvs()
-                }
-                if (config.CAP_VERSION == '2'){
-                  if (env.BRANCH_NAME == 'master') {
-                    railsRvm('cap deploy -S loc=prod')
-                  }
-                  else if(env.BRANCH_NAME == 'stage') {
-                    railsRvm('cap deploy -S loc=stage -S branch=stage')
-                  }
-                  else if(env.BRANCH_NAME == 'dev') {
-                    railsRvm('cap deploy -S loc=dev -S branch=dev')
-                  }
-                  railsOtherBuildEnvs()
                 }
               }
               currentBuild.result = 'SUCCESS'

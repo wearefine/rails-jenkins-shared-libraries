@@ -6,6 +6,7 @@ rails {
   RUBY_VERSION = 'ruby-x.x.x'
   RUBY_GEMSET = 'gemset_name'
   NODE_INSTALL_NAME = 'lts/boron'
+  SSH_AGENT_ID = 'ssh-login-key'
   RAILS_ENV = 'test'
   CAP_VERSION = '3'
   OTHER_DEPLOY_ENVS = 'stage2, qa'
