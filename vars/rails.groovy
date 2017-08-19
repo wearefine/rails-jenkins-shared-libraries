@@ -179,7 +179,7 @@ def call(body) {
             stage('Deploy') {
               milestone label: 'Deploy'
               if (config.DEPLOY_VARS) {
-                withCredentials() {
+                withCredentials(config.DEPLOY_VARS) {
                   if (CAP_VERSION == '3'){
                     if (env.BRANCH_NAME == 'master') {
                       rvm('cap prod deploy')
