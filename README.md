@@ -29,6 +29,7 @@ If you're new to Jenkins pipelines you should go read the [documentation](https:
   - git
   - timestamper
   - credentials
+  - sshagent
   - junit
 
 #### Scripts Approval
