@@ -180,7 +180,7 @@ def call(body) {
               milestone label: 'Deploy'
               if (config.DEPLOY_VARS) {
                 withCredentials(config.DEPLOY_VARS) {
-                  if (config.config.CAP_VERSION == '3'){
+                  if (config.CAP_VERSION == '3'){
                     if (env.BRANCH_NAME == 'master') {
                       railsRvm('cap prod deploy')
                     }
