@@ -178,7 +178,7 @@ def call(body) {
           try {
             stage('Deploy') {
               milestone label: 'Deploy'
-              if (cofnig.DEPLOY_VARS) {
+              if (config.DEPLOY_VARS) {
                 withCredentials() {
                   if (CAP_VERSION == '3'){
                     if (env.BRANCH_NAME == 'master') {
