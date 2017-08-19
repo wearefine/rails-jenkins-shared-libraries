@@ -71,8 +71,8 @@ def call(body) {
         throw e
       }
 
-      railsDatabase {
-        railsNodejs {
+      getDatabaseConnection(id: 'test_db', type: 'GLOBAL') {
+        nodejs(nodeJSInstallationName: config.NODE_INSTALL_NAME) {
           if (config.DEBUG == 'true') {
             echo "PATH: ${env.PATH}"
             echo "BRANCH_NAME: ${env.BRANCH_NAME}"
