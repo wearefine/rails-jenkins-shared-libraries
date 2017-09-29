@@ -39,7 +39,12 @@ def call(body) {
     env.MYSQL_PASSWORD = config.MYSQL_PASSWORD
   }
   if (!config.CAP_VERSION) {
-    config.CAP_VERSION = "3"
+    config.CAP_VERSION = '3'
+  }
+  if (!config.OTHER_DEPLOY_ENVS) {
+    config.OTHER_DEPLOY_ENVS = ''
+  } else {
+    env.OTHER_DEPLOY_ENVS = config.OTHER_DEPLOY_ENVS
   }
   if (!config.SLACK_CHANNEL) {
     config.SLACK_CHANNEL = '#deploys'
