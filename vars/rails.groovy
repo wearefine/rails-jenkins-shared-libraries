@@ -84,7 +84,7 @@ def call(body) {
         throw e
       }
 
-    if (config.SKIP_TESTS == 'fase') {
+    if (config.SKIP_TESTS == 'false') {
       getDatabaseConnection(id: 'test_db', type: 'GLOBAL') {
         nodejs(nodeJSInstallationName: config.NODE_INSTALL_NAME) {
           if (config.DEBUG == 'true') {
