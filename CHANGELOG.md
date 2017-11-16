@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Updated
 - railsinstallDeps is now its own function
 - railsDeploy is now its own function
+- SQL commands now clean old DBs, and Users before adding new ones at the start of the build
 
 ## [v1.0.0]
 
