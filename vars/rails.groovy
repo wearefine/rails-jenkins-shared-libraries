@@ -53,6 +53,9 @@ def call(body) {
     config.DEBUG = 'false'
     env.DEBUG = 'false'
   }
+  else {
+    env.DEBUG = 'true'
+  }
   if (!config.NODE_INSTALL_NAME) {
     error 'NODE_INSTALL_NAME is required'
   }
@@ -108,6 +111,10 @@ def call(body) {
               }
               env.MYSQL_DATABASE = db_name
 
+              sql connection: 'test_db', sql: "DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
+              sql connection: 'test_db', sql: "REVOKE ALL PRIVILEGES, GRANT OPTION FROM ${env.MYSQL_USER}@'%';"
+              sql connection: 'test_db', sql: "DROP USER ${env.MYSQL_USER}@'%';"
+
               sql connection: 'test_db', sql: "CREATE DATABASE IF NOT EXISTS ${env.MYSQL_DATABASE};"
               echo "SQL: CREATE DATABASE IF NOT EXISTS ${env.MYSQL_DATABASE};"
               sql connection: 'test_db', sql: "GRANT ALL ON ${env.MYSQL_DATABASE}.* TO \'${env.MYSQL_USER}\'@\'%\' IDENTIFIED BY \'${env.MYSQL_PASSWORD}\';"
@@ -134,7 +141,6 @@ def call(body) {
             }
           } catch(Exception e) {
             currentBuild.result = 'FAILURE'
-            sql connection: 'test_db', sql: "DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
             if (config.DEBUG == 'false') {
               railsSlack(config.SLACK_CHANNEL)
             }
@@ -167,7 +173,6 @@ def call(body) {
           } catch(Exception e) {
             junit allowEmptyResults: true, keepLongStdio: true, testResults: 'testresults/*.xml'
             currentBuild.result = 'FAILURE'
-            sql connection: 'test_db', sql: "DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
             if (config.DEBUG == 'false') {
               railsSlack(config.SLACK_CHANNEL)
             }

@@ -64,7 +64,6 @@ def call(Map config) {
     }
   } catch(Exception e) {
     currentBuild.result = 'FAILURE'
-    sql connection: 'test_db', sql: "DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
     if (config.DEBUG == 'false') {
       railsSlack(config.SLACK_CHANNEL)
     }
