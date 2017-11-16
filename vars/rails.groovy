@@ -59,6 +59,11 @@ def call(body) {
   if (!config.SSH_AGENT_ID) {
     error 'SSH_AGENT_ID is required'
   }
+  if (!config.SKIP_TESTS){
+    config.SKIP_TESTS = 'false'
+  } else {
+    env.SKIP_TESTS = config.SKIP_TESTS
+  }
 
   node {
     timestamps {
@@ -79,6 +84,7 @@ def call(body) {
         throw e
       }
 
+    if (config.SKIP_TESTS == 'fase') {
       getDatabaseConnection(id: 'test_db', type: 'GLOBAL') {
         nodejs(nodeJSInstallationName: config.NODE_INSTALL_NAME) {
           if (config.DEBUG == 'true') {
@@ -183,75 +189,7 @@ def call(body) {
             throw e
           }
 
-          try {
-            stage('Deploy') {
-              milestone label: 'Deploy'
-              sshagent([config.SSH_AGENT_ID]) {
-                if (config.DEPLOY_VARS) {
-                  withCredentials(config.DEPLOY_VARS) {
-                    if (config.CAP_VERSION == '3'){
-                      if (env.BRANCH_NAME == 'master') {
-                        railsRvm('cap prod deploy')
-                      }
-                      else if(env.BRANCH_NAME == 'stage') {
-                        railsRvm('cap stage deploy')
-                      }
-                      else if(env.BRANCH_NAME == 'dev') {
-                        railsRvm('cap dev deploy')
-                      }
-                      railsOtherBuildEnvs()
-                    }
-                    if (config.CAP_VERSION == '2'){
-                      if (env.BRANCH_NAME == 'master') {
-                        railsRvm('cap deploy -S loc=prod')
-                      }
-                      else if(env.BRANCH_NAME == 'stage') {
-                        railsRvm('cap deploy -S loc=stage -S branch=stage')
-                      }
-                      else if(env.BRANCH_NAME == 'dev') {
-                        railsRvm('cap deploy -S loc=dev -S branch=dev')
-                      }
-                      railsOtherBuildEnvs()
-                    }
-                  }
-                }
-                else {
-                  if (config.CAP_VERSION == '3'){
-                    if (env.BRANCH_NAME == 'master') {
-                      railsRvm('cap prod deploy')
-                    }
-                    else if(env.BRANCH_NAME == 'stage') {
-                      railsRvm('cap stage deploy')
-                    }
-                    else if(env.BRANCH_NAME == 'dev') {
-                      railsRvm('cap dev deploy')
-                    }
-                    railsOtherBuildEnvs()
-                  }
-                  if (config.CAP_VERSION == '2'){
-                    if (env.BRANCH_NAME == 'master') {
-                      railsRvm('cap deploy -S loc=prod')
-                    }
-                    else if(env.BRANCH_NAME == 'stage') {
-                      railsRvm('cap deploy -S loc=stage -S branch=stage')
-                    }
-                    else if(env.BRANCH_NAME == 'dev') {
-                      railsRvm('cap deploy -S loc=dev -S branch=dev')
-                    }
-                    railsOtherBuildEnvs()
-                  }
-                }
-              }
-              currentBuild.result = 'SUCCESS'
-            }
-          } catch(Exception e) {
-            currentBuild.result = 'FAILURE'
-            sql connection: 'test_db', sql: "DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
-            if (config.DEBUG == 'false') {
-              railsSlack(config.SLACK_CHANNEL)
-            }
-            throw e
-          }
+          railsDeploy(config)
 
           try {
             stage('Clean Up') {
@@ -273,9 +211,13 @@ def call(body) {
           }
         } // railsNodejs
       } // railsDatabase
-    } // timestamps
-    if (config.DEBUG == 'false') {
-      railsSlack(config.SLACK_CHANNEL)
+    } // SKIP_TESTS
+    else {
+      railsDeploy(config)
     }
+      if (config.DEBUG == 'false') {
+        railsSlack(config.SLACK_CHANNEL)
+      }
+    } // timestamps
   } // node
 }
