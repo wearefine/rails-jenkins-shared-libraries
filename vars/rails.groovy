@@ -122,22 +122,7 @@ def call(body) {
             throw e
           }
 
-          try {
-            stage('Install Dependancies') {
-              milestone label: 'Install Dependancies'
-              retry(2) {
-                railsRvm('bundle install')
-              }
-              currentBuild.result = 'SUCCESS'
-            }
-          } catch(Exception e) {
-            currentBuild.result = 'FAILURE'
-            sql connection: 'test_db', sql: "DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
-            if (config.DEBUG == 'false') {
-              railsSlack(config.SLACK_CHANNEL)
-            }
-            throw e
-          }
+          railsInstallDeps(config)
 
           try {
             stage('Load Schema') {
@@ -213,6 +198,7 @@ def call(body) {
       } // railsDatabase
     } // SKIP_TESTS
     else {
+      railsInstallDeps(config)
       railsDeploy(config)
     }
       if (config.DEBUG == 'false') {
