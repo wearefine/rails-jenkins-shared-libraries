@@ -82,7 +82,7 @@ rails {
 - **DEPLOY_VARS:** Credential strings you wish to have set during deployment only. See [Deploy Vars Configuration](#Deploy Vars Configuration) for more details. [List]
 - **SLACK_CHANNEL:** Specify the Slack channel to use for notifications. [String] Default: #puppet
 - **DEBUG:** Turn off Slack notifications and turn on more console output. [String] Default: false
-- **SKIP_TESTS:** Don't run tests just checkout and deploy
+- **SKIP_TESTS:** Don't run tests just checkout and deploy [String] Default: false
 
 ## Testing Framework Support
 
