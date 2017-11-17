@@ -53,11 +53,19 @@ def call(body) {
     config.DEBUG = 'false'
     env.DEBUG = 'false'
   }
+  else {
+    env.DEBUG = 'true'
+  }
   if (!config.NODE_INSTALL_NAME) {
     error 'NODE_INSTALL_NAME is required'
   }
   if (!config.SSH_AGENT_ID) {
     error 'SSH_AGENT_ID is required'
+  }
+  if (!config.SKIP_TESTS){
+    config.SKIP_TESTS = 'false'
+  } else {
+    env.SKIP_TESTS = config.SKIP_TESTS
   }
 
   node {
@@ -79,6 +87,7 @@ def call(body) {
         throw e
       }
 
+    if (config.SKIP_TESTS == 'false') {
       getDatabaseConnection(id: 'test_db', type: 'GLOBAL') {
         nodejs(nodeJSInstallationName: config.NODE_INSTALL_NAME) {
           if (config.DEBUG == 'true') {
@@ -102,6 +111,10 @@ def call(body) {
               }
               env.MYSQL_DATABASE = db_name
 
+              sql connection: 'test_db', sql: "DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
+              sql connection: 'test_db', sql: "REVOKE ALL PRIVILEGES, GRANT OPTION FROM ${env.MYSQL_USER}@'%';"
+              sql connection: 'test_db', sql: "DROP USER ${env.MYSQL_USER}@'%';"
+
               sql connection: 'test_db', sql: "CREATE DATABASE IF NOT EXISTS ${env.MYSQL_DATABASE};"
               echo "SQL: CREATE DATABASE IF NOT EXISTS ${env.MYSQL_DATABASE};"
               sql connection: 'test_db', sql: "GRANT ALL ON ${env.MYSQL_DATABASE}.* TO \'${env.MYSQL_USER}\'@\'%\' IDENTIFIED BY \'${env.MYSQL_PASSWORD}\';"
@@ -116,22 +129,7 @@ def call(body) {
             throw e
           }
 
-          try {
-            stage('Install Dependancies') {
-              milestone label: 'Install Dependancies'
-              retry(2) {
-                railsRvm('bundle install')
-              }
-              currentBuild.result = 'SUCCESS'
-            }
-          } catch(Exception e) {
-            currentBuild.result = 'FAILURE'
-            sql connection: 'test_db', sql: "DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
-            if (config.DEBUG == 'false') {
-              railsSlack(config.SLACK_CHANNEL)
-            }
-            throw e
-          }
+          railsInstallDeps(config)
 
           try {
             stage('Load Schema') {
@@ -143,7 +141,6 @@ def call(body) {
             }
           } catch(Exception e) {
             currentBuild.result = 'FAILURE'
-            sql connection: 'test_db', sql: "DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
             if (config.DEBUG == 'false') {
               railsSlack(config.SLACK_CHANNEL)
             }
@@ -176,82 +173,13 @@ def call(body) {
           } catch(Exception e) {
             junit allowEmptyResults: true, keepLongStdio: true, testResults: 'testresults/*.xml'
             currentBuild.result = 'FAILURE'
-            sql connection: 'test_db', sql: "DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
             if (config.DEBUG == 'false') {
               railsSlack(config.SLACK_CHANNEL)
             }
             throw e
           }
 
-          try {
-            stage('Deploy') {
-              milestone label: 'Deploy'
-              sshagent([config.SSH_AGENT_ID]) {
-                if (config.DEPLOY_VARS) {
-                  withCredentials(config.DEPLOY_VARS) {
-                    if (config.CAP_VERSION == '3'){
-                      if (env.BRANCH_NAME == 'master') {
-                        railsRvm('cap prod deploy')
-                      }
-                      else if(env.BRANCH_NAME == 'stage') {
-                        railsRvm('cap stage deploy')
-                      }
-                      else if(env.BRANCH_NAME == 'dev') {
-                        railsRvm('cap dev deploy')
-                      }
-                      railsOtherBuildEnvs()
-                    }
-                    if (config.CAP_VERSION == '2'){
-                      if (env.BRANCH_NAME == 'master') {
-                        railsRvm('cap deploy -S loc=prod')
-                      }
-                      else if(env.BRANCH_NAME == 'stage') {
-                        railsRvm('cap deploy -S loc=stage -S branch=stage')
-                      }
-                      else if(env.BRANCH_NAME == 'dev') {
-                        railsRvm('cap deploy -S loc=dev -S branch=dev')
-                      }
-                      railsOtherBuildEnvs()
-                    }
-                  }
-                }
-                else {
-                  if (config.CAP_VERSION == '3'){
-                    if (env.BRANCH_NAME == 'master') {
-                      railsRvm('cap prod deploy')
-                    }
-                    else if(env.BRANCH_NAME == 'stage') {
-                      railsRvm('cap stage deploy')
-                    }
-                    else if(env.BRANCH_NAME == 'dev') {
-                      railsRvm('cap dev deploy')
-                    }
-                    railsOtherBuildEnvs()
-                  }
-                  if (config.CAP_VERSION == '2'){
-                    if (env.BRANCH_NAME == 'master') {
-                      railsRvm('cap deploy -S loc=prod')
-                    }
-                    else if(env.BRANCH_NAME == 'stage') {
-                      railsRvm('cap deploy -S loc=stage -S branch=stage')
-                    }
-                    else if(env.BRANCH_NAME == 'dev') {
-                      railsRvm('cap deploy -S loc=dev -S branch=dev')
-                    }
-                    railsOtherBuildEnvs()
-                  }
-                }
-              }
-              currentBuild.result = 'SUCCESS'
-            }
-          } catch(Exception e) {
-            currentBuild.result = 'FAILURE'
-            sql connection: 'test_db', sql: "DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
-            if (config.DEBUG == 'false') {
-              railsSlack(config.SLACK_CHANNEL)
-            }
-            throw e
-          }
+          railsDeploy(config)
 
           try {
             stage('Clean Up') {
@@ -273,9 +201,14 @@ def call(body) {
           }
         } // railsNodejs
       } // railsDatabase
-    } // timestamps
-    if (config.DEBUG == 'false') {
-      railsSlack(config.SLACK_CHANNEL)
+    } // SKIP_TESTS
+    else {
+      railsInstallDeps(config)
+      railsDeploy(config)
     }
+      if (config.DEBUG == 'false') {
+        railsSlack(config.SLACK_CHANNEL)
+      }
+    } // timestamps
   } // node
 }

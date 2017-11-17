@@ -13,4 +13,5 @@ rails {
   DEPLOY_VARS = [string(credentialsId: 'secret-text', variable: 'secret-text'), usernameColonPassword(credentialsId: 'git_access', variable: 'git-login-creds')]
   SLACK_CHANNEL = '#deploys'
   DEBUG = 'false'
+  SKIP_TESTS = 'false'
 }
