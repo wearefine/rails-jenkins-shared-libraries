@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] - TBD
 
+## [v1.1.1] - 11-17-2017
+### Fixed
+- MySQL query was trying to remove a user that wasn't there during the setup process
+
 ## [v1.1.0] - 11-16-2017
 ### Added
 - SKIP_TESTS parameter so you can just deploy code

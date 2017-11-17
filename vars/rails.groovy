@@ -112,8 +112,6 @@ def call(body) {
               env.MYSQL_DATABASE = db_name
 
               sql connection: 'test_db', sql: "DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
-              sql connection: 'test_db', sql: "REVOKE ALL PRIVILEGES, GRANT OPTION FROM ${env.MYSQL_USER}@'%';"
-              sql connection: 'test_db', sql: "DROP USER ${env.MYSQL_USER}@'%';"
 
               sql connection: 'test_db', sql: "CREATE DATABASE IF NOT EXISTS ${env.MYSQL_DATABASE};"
               echo "SQL: CREATE DATABASE IF NOT EXISTS ${env.MYSQL_DATABASE};"
