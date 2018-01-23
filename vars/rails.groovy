@@ -67,6 +67,11 @@ def call(body) {
   } else {
     env.SKIP_TESTS = config.SKIP_TESTS
   }
+  if (!config.SKIP_MIGRATIONS){
+    config.SKIP_MIGRATIONS = 'false'
+  } else {
+    env.SKIP_MIGRATIONS = config.SKIP_MIGRATIONS
+  }
 
   node {
     timestamps {
@@ -98,26 +103,29 @@ def call(body) {
           try {
             stage('Setup Environment') {
               milestone label: 'Setup Environment'
-              env.BRANCH_NAME = env.BRANCH_NAME.split('-')[0].toLowerCase()
-              echo "BRANCH_NAME: ${env.BRANCH_NAME}"
-              def user_length = "${env.MYSQL_USER}_${env.BRANCH_NAME}".length()
-              def user_name = "${env.BRANCH_NAME}_${env.MYSQL_USER}"
-              def db_name = "${env.MYSQL_DATABASE}_${env.BRANCH_NAME}".toLowerCase()
-              env.MYSQL_USER = user_name
+              
+              if (config.SKIP_MIGRATIONS == 'false') {
+                env.BRANCH_NAME = env.BRANCH_NAME.split('-')[0].toLowerCase()
+                echo "BRANCH_NAME: ${env.BRANCH_NAME}"
+                def user_length = "${env.MYSQL_USER}_${env.BRANCH_NAME}".length()
+                def user_name = "${env.BRANCH_NAME}_${env.MYSQL_USER}"
+                def db_name = "${env.MYSQL_DATABASE}_${env.BRANCH_NAME}".toLowerCase()
+                env.MYSQL_USER = user_name
 
-              if(user_length >= 16) {
-                def trimmed_username = user_name[0..15]
-                env.MYSQL_USER = trimmed_username
+                if(user_length >= 16) {
+                  def trimmed_username = user_name[0..15]
+                  env.MYSQL_USER = trimmed_username
+                }
+                env.MYSQL_DATABASE = db_name
+
+                sql connection: 'test_db', sql: "DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
+
+                sql connection: 'test_db', sql: "CREATE DATABASE IF NOT EXISTS ${env.MYSQL_DATABASE};"
+                echo "SQL: CREATE DATABASE IF NOT EXISTS ${env.MYSQL_DATABASE};"
+                sql connection: 'test_db', sql: "GRANT ALL ON ${env.MYSQL_DATABASE}.* TO \'${env.MYSQL_USER}\'@\'%\' IDENTIFIED BY \'${env.MYSQL_PASSWORD}\';"
+                echo "SQL: GRANT ALL ON ${env.MYSQL_DATABASE}.* TO \'${env.MYSQL_USER}\'@\'%\' IDENTIFIED BY \'**************\';"
+                currentBuild.result = 'SUCCESS'
               }
-              env.MYSQL_DATABASE = db_name
-
-              sql connection: 'test_db', sql: "DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
-
-              sql connection: 'test_db', sql: "CREATE DATABASE IF NOT EXISTS ${env.MYSQL_DATABASE};"
-              echo "SQL: CREATE DATABASE IF NOT EXISTS ${env.MYSQL_DATABASE};"
-              sql connection: 'test_db', sql: "GRANT ALL ON ${env.MYSQL_DATABASE}.* TO \'${env.MYSQL_USER}\'@\'%\' IDENTIFIED BY \'${env.MYSQL_PASSWORD}\';"
-              echo "SQL: GRANT ALL ON ${env.MYSQL_DATABASE}.* TO \'${env.MYSQL_USER}\'@\'%\' IDENTIFIED BY \'**************\';"
-              currentBuild.result = 'SUCCESS'
             }
           } catch(Exception e) {
             currentBuild.result = 'FAILURE'
@@ -128,21 +136,23 @@ def call(body) {
           }
 
           railsInstallDeps(config)
-
-          try {
-            stage('Load Schema') {
-              milestone label: 'Load Schema'
-              retry(2) {
-                railsRvm('rake db:schema:load')
+          
+          if (config.SKIP_MIGRATIONS == 'false') {
+            try {
+              stage('Load Schema') {
+                milestone label: 'Load Schema'
+                retry(2) {
+                  railsRvm('rake db:schema:load')
+                }
+                currentBuild.result = 'SUCCESS'
               }
-              currentBuild.result = 'SUCCESS'
+            } catch(Exception e) {
+              currentBuild.result = 'FAILURE'
+              if (config.DEBUG == 'false') {
+                railsSlack(config.SLACK_CHANNEL)
+              }
+              throw e
             }
-          } catch(Exception e) {
-            currentBuild.result = 'FAILURE'
-            if (config.DEBUG == 'false') {
-              railsSlack(config.SLACK_CHANNEL)
-            }
-            throw e
           }
 
           try {
