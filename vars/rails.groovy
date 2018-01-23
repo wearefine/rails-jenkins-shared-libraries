@@ -124,8 +124,8 @@ def call(body) {
                 echo "SQL: CREATE DATABASE IF NOT EXISTS ${env.MYSQL_DATABASE};"
                 sql connection: 'test_db', sql: "GRANT ALL ON ${env.MYSQL_DATABASE}.* TO \'${env.MYSQL_USER}\'@\'%\' IDENTIFIED BY \'${env.MYSQL_PASSWORD}\';"
                 echo "SQL: GRANT ALL ON ${env.MYSQL_DATABASE}.* TO \'${env.MYSQL_USER}\'@\'%\' IDENTIFIED BY \'**************\';"
-                currentBuild.result = 'SUCCESS'
               }
+              currentBuild.result = 'SUCCESS'
             }
           } catch(Exception e) {
             currentBuild.result = 'FAILURE'
@@ -192,13 +192,15 @@ def call(body) {
           try {
             stage('Clean Up') {
               milestone label: 'Clean Up'
-              sql connection: 'test_db', sql: "DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
-              echo "SQL: DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
-              sql connection: 'test_db', sql: "REVOKE ALL PRIVILEGES, GRANT OPTION FROM ${env.MYSQL_USER}@'%';"
-              echo "SQL: REVOKE ALL PRIVILEGES, GRANT OPTION FROM ${env.MYSQL_USER}@'%';"
-              sql connection: 'test_db', sql: "DROP USER ${env.MYSQL_USER}@'%';"
-              echo "SQL: DROP USER ${env.MYSQL_USER}@'%';"
-              currentBuild.result = 'SUCCESS'
+              if (config.SKIP_MIGRATIONS == 'false') {
+                sql connection: 'test_db', sql: "DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
+                echo "SQL: DROP DATABASE IF EXISTS ${env.MYSQL_DATABASE};"
+                sql connection: 'test_db', sql: "REVOKE ALL PRIVILEGES, GRANT OPTION FROM ${env.MYSQL_USER}@'%';"
+                echo "SQL: REVOKE ALL PRIVILEGES, GRANT OPTION FROM ${env.MYSQL_USER}@'%';"
+                sql connection: 'test_db', sql: "DROP USER ${env.MYSQL_USER}@'%';"
+                echo "SQL: DROP USER ${env.MYSQL_USER}@'%';"
+              }
+                currentBuild.result = 'SUCCESS'
             }
           } catch(Exception e) {
             currentBuild.result = 'FAILURE'

@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] - TBD
 
+## [v1.2.1] - 1-23-2018
+- Fixed a bug with the cleanup step trying to clean DB and users that weren't created if SKIP_MIGRATIONS = 'true'
+
 ## [v1.2.0] - 1-23-2018
 - SKIP_MIGRATIONS parameter - You can skip running migrations during tests
 
