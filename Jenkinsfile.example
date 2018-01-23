@@ -14,4 +14,5 @@ rails {
   SLACK_CHANNEL = '#deploys'
   DEBUG = 'false'
   SKIP_TESTS = 'false'
+  SKIP_MIGRATIONS = 'false'
 }

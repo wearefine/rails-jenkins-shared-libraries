@@ -60,6 +60,7 @@ rails {
   SLACK_CHANNEL = '#deploys'
   DEBUG = 'false'
   SKIP_TESTS = 'false'
+  SKIP_MIGRATIONS = 'false'
 }
 ```
 
@@ -83,6 +84,7 @@ rails {
 - **SLACK_CHANNEL:** Specify the Slack channel to use for notifications. [String] Default: #puppet
 - **DEBUG:** Turn off Slack notifications and turn on more console output. [String] Default: false
 - **SKIP_TESTS:** Don't run tests just checkout and deploy [String] Default: false
+- **SKIP_MIGRATIONS:** Don't setup a database or run migrations. [String] Default: false
 
 ## Testing Framework Support
 
