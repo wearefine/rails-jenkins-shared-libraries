@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased] - TBD
+### Added
+- DOCKER_REGISTRY_URL parameter - Private registry URL to use for fetching containers
+- DOCKER_REGISTRY_CREDS_ID parameter - CredentialsId to use to login to a private Docker registry
+- AWS_DEFAULT_REGION parameter - Used when using AWS resources such as Elastic Container Registry
+- Tests and deploys using Docker containers
+- Workspace is cleaned at the end of each run
 
 ## [v1.2.1] - 1-23-2018
 - Fixed a bug with the cleanup step trying to clean DB and users that weren't created if SKIP_MIGRATIONS = 'true'

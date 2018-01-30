@@ -15,4 +15,7 @@ rails {
   DEBUG = 'false'
   SKIP_TESTS = 'false'
   SKIP_MIGRATIONS = 'false'
+  DOCKER_REGISTRY_CREDS_ID = 'access_docker_hub'
+  DOCKER_REGISTRY_URL = 'https://hub.docker.io'
+  AWS_DEFAULT_REGION = 'us-east-1'
 }

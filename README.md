@@ -61,6 +61,9 @@ rails {
   DEBUG = 'false'
   SKIP_TESTS = 'false'
   SKIP_MIGRATIONS = 'false'
+  DOCKER_REGISTRY_CREDS_ID = 'access_docker_hub'
+  DOCKER_REGISTRY_URL = 'https://hub.docker.io'
+  AWS_DEFAULT_REGION = 'us-east-1'
 }
 ```
 
@@ -85,6 +88,9 @@ rails {
 - **DEBUG:** Turn off Slack notifications and turn on more console output. [String] Default: false
 - **SKIP_TESTS:** Don't run tests just checkout and deploy [String] Default: false
 - **SKIP_MIGRATIONS:** Don't setup a database or run migrations. [String] Default: false
+- **DOCKER_REGISTRY_URL:** The private Docker registry URL. Required to build with Docker. [String]
+- **DOCKER_REGISTRY_CREDS_ID:** The private Docker registry credentials ID in Jenkins. Required to build with Docker. [String]
+- **AWS_DEFAULT_REGION:** The AWS region of you Elastic Container Registry
 
 ## Testing Framework Support
 
@@ -118,6 +124,11 @@ You will notice that inside the `withCredentials` method there is a list of valu
 
 ## Test Results
 All test results are assumed to be in JUnit format and placed in a single directory named `testresults`.
+
+## Docker Builds
+If a Dockerfile is present in the repo and `DOCKER_REGISTRY_URL` and `DOCKER_REGISTRY_CREDS_ID` are set builds will run with Docker. A sidcar MySQL container is spun up to use for the build then deleted when the build completes. All containers are cleaned up after the build completes. Gems are stored in a Docker volume per project per branch (eg. mysite_master-gems). This allows for faster builds since gems are cached between runs. Since this can lead to filling up the disk quickly it is recommended that you run a periodic clean job to remove old volumes. See Jenkinsfile.clean_example.
+
+**Note:** The current setup only works with AWS ECR but can easily be adapted to work with other private registries. 
 
 ## [Changelog](CHANGELOG.md)
 
