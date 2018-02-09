@@ -27,7 +27,7 @@ def call(Map config) {
       }
 
       sshagent([config.SSH_AGENT_ID]) {
-        config.container = "docker run -t --rm --name ${env.BUILD_TAG} -w /app -v ${env.SSH_AUTH_SOCK}:${env.SSH_AUTH_SOCK} -v ${env.JEKNINS_HOME}/.ssh:/root/.ssh -v ${env.WORKSPACE}:/app -v ${env.REPO_NAME}_${env.BRANCH_NAME}-gems:/gems -e RAILS_ENV=${env.RAILS_ENV} -e MYSQL_HOST=${env.MYSQL_HOST} -e MYSQL_DATABASE=${env.MYSQL_DATABASE} -e MYSQL_USER=${env.MYSQL_USER} -e MYSQL_PASSWORD=${env.MYSQL_PASSWORD} -e SSH_AUTH_SOCK=${env.SSH_AUTH_SOCK} --link ${c.id}:db ${config.DOCKER_REGISTRY}:${env.RUBY_VERSION_NUM}"
+        config.container = "docker run -t --rm --name ${env.BUILD_TAG} -w /app -v ${env.SSH_AUTH_SOCK}:${env.SSH_AUTH_SOCK} -v ${env.JENKINS_HOME}/.ssh:/root/.ssh -v ${env.WORKSPACE}:/app -v ${env.REPO_NAME}_${env.BRANCH_NAME}-gems:/gems -e RAILS_ENV=${env.RAILS_ENV} -e MYSQL_HOST=${env.MYSQL_HOST} -e MYSQL_DATABASE=${env.MYSQL_DATABASE} -e MYSQL_USER=${env.MYSQL_USER} -e MYSQL_PASSWORD=${env.MYSQL_PASSWORD} -e SSH_AUTH_SOCK=${env.SSH_AUTH_SOCK} --link ${c.id}:db ${config.DOCKER_REGISTRY}:${env.RUBY_VERSION_NUM}"
 
         railsInstallDepsDocker(config)
 
