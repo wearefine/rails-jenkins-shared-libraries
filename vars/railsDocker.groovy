@@ -13,6 +13,19 @@ def call(Map config) {
     env.AWS_DEFAULT_REGION = config.AWS_DEFAULT_REGION
   }
 
+  env.BRANCH_NAME = env.BRANCH_NAME.split('-')[0].toLowerCase()
+  echo "BRANCH_NAME: ${env.BRANCH_NAME}"
+  def user_length = "${env.MYSQL_USER}_${env.BRANCH_NAME}".length()
+  def user_name = "${env.BRANCH_NAME}_${env.MYSQL_USER}"
+  def db_name = "${env.MYSQL_DATABASE}_${env.BRANCH_NAME}".toLowerCase()
+  env.MYSQL_USER = user_name
+
+  if(user_length >= 16) {
+    def trimmed_username = user_name[0..15]
+    env.MYSQL_USER = trimmed_username
+  }
+  env.MYSQL_DATABASE = db_name
+
   env.MYSQL_HOST = 'db'
   env.RUBY_VERSION_NUM = env.RUBY_VERSION.split('-')[1]
   config.DOCKER_REGISTRY = config.DOCKER_REGISTRY_URL.split('https://')[1]
