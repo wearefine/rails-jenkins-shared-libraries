@@ -27,7 +27,7 @@ def call(Map config) {
   env.MYSQL_DATABASE = db_name
 
   env.MYSQL_HOST = 'db'
-  env.RUBY_VERSION_NUM = env.RUBY_VERSION.split('-')[1]
+  env.RUBY_VERSION_NUM = env.RUBY_VERSION.split('ruby-')[1]
   config.DOCKER_REGISTRY = config.DOCKER_REGISTRY_URL.split('https://')[1]
   env.REPO_NAME = env.JOB_NAME.split('/')[1]
 
