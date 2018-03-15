@@ -53,6 +53,8 @@ def call(Map config) {
         }
 
         railsDeployDocker(config)
+
+        sh "${config.container} chown -R 1003:1004 /app"
       } // SSH agent
     } // MySQL container
   } // withRegistry
