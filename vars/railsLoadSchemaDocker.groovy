@@ -5,7 +5,7 @@ def call(Map config) {
     if (config.SKIP_MIGRATIONS == 'false') {
       stage('Load Schema') {
         milestone label: 'Load Schema'
-        sh "${config.container} rake db:schema:load"
+        sh "${config.container} rake db:create db:schema:load"
         currentBuild.result = 'SUCCESS'
       }
     }
