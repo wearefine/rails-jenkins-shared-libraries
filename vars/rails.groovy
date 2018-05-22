@@ -69,7 +69,7 @@ def call(body) {
   } else {
     env.SKIP_DEPLOY = config.SKIP_DEPLOY
   }
-  if (!config.DOWNSTREAM_JOB_PARAMS) {
+  if (config.DOWNSTREAM_JOB_PARAMS && !config.DOWNSTREAM_JOB_NAME) {
     error 'You must define DOWNSTREAM_JOB_NAME in order to use DOWNSTREAM_JOB_PARAMS'
   }
 
