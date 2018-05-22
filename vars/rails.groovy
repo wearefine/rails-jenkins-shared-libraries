@@ -64,6 +64,15 @@ def call(body) {
   } else {
     env.SKIP_MIGRATIONS = config.SKIP_MIGRATIONS
   }
+  if (!config.SKIP_DEPLOY){
+    config.SKIP_DEPLOY = 'false'
+  } else {
+    env.SKIP_DEPLOY = config.SKIP_DEPLOY
+  }
+  if (!config.DOWNSTREAM_JOB_PARAMS) {
+    error 'You must define DOWNSTREAM_JOB_NAME in order to use DOWNSTREAM_JOB_PARAMS'
+  }
+
 
   node {
     timestamps {
@@ -73,7 +82,7 @@ def call(body) {
 
       try {
         stage('Checkout') {
-          checkout scm
+          def git = checkout scm
           currentBuild.result = 'SUCCESS'
         }
       } catch(Exception e) {
@@ -83,6 +92,13 @@ def call(body) {
         }
         throw e
       }
+
+      // Set the git information into the config map
+      config.BRANCH = git.GIT_BRANCH
+      config.GIT_COMMIT = GIT_COMMIT
+      config.GIT_PREVIOUS_COMMIT = git.GIT_PREVIOUS_COMMIT
+      config.GIT_PREVIOUS_SUCCESSFUL_COMMIT = git.GIT_PREVIOUS_SUCCESSFUL_COMMIT
+      config.GIT_URL = git.GIT_URL
 
       def dockerBuild = fileExists 'Dockerfile'
       if (dockerBuild) {
@@ -196,7 +212,9 @@ def call(body) {
                 throw e
               }
 
-              railsDeploy(config)
+              if (config.SKIP_DEPLOY == 'false') {
+                railsDeployDocker(config)
+              }
 
               try {
                 stage('Clean Up') {
@@ -228,6 +246,9 @@ def call(body) {
         if (config.DEBUG == 'false') {
           railsSlack(config.SLACK_CHANNEL)
         }
+      } // Docker build
+      if (config.DOWNSTREAM_JOB_NAME) {
+        railsDownstreamJob(config)
       }
       cleanWs notFailBuild: true
     } // timestamps

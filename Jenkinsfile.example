@@ -18,4 +18,7 @@ rails {
   DOCKER_REGISTRY_CREDS_ID = 'access_docker_hub'
   DOCKER_REGISTRY_URL = 'https://hub.docker.io'
   AWS_DEFAULT_REGION = 'us-east-1'
+  SKIP_DEPLOY = 'false'
+  DOWNSTREAM_JOB_NAME = 'job_name'
+  DOWNSTREAM_JOB_PARAMS = [string(name: 'rubyVersion', value: version), string(name: 'checksum', value: checksum))]
 }
