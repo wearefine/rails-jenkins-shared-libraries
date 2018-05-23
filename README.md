@@ -7,6 +7,7 @@ Testing your Rails project on every change should be a smooth process. With Jenk
 ### Rails Project
 
 This pipeline job assumes your project has the following:
+
 - Capistrano based deployments
 - Uses a single database the is cleaned up after each build
 - Testing is done on a single node without docker
@@ -16,26 +17,33 @@ This pipeline job assumes your project has the following:
 If you're new to Jenkins pipelines you should go read the [documentation](https://jenkins.io/doc/book/pipeline/) before proceeding to get a sense for what to expect using this code. The rest of the setup process will assume you have basic knowledge of Jenkins or CI/CD jobs in general.
 
 #### OS
-  - rvm installed in the jenkins user
-  - git
-  - build-essential
+
+- rvm installed in the jenkins user
+- git
+- build-essential
 
 #### Jenkins
-  - Version: > 2.7.3 - tested on (2.19.4 LTS)
-  
+
+- Version: > 2.7.3 - tested on (2.89.4 LTS)
+
 #### Plugins
-  - slack
-  - pipeline (workflow-aggregator)
-  - git
-  - timestamper
-  - credentials
-  - sshagent
-  - junit
+
+- slack
+- pipeline (workflow-aggregator)
+- git
+- timestamper
+- credentials
+- sshagent
+- junit
+- docker
+- AWS ECR credentials
 
 #### Scripts Approval
+
 When the job runs the first time you will need to work through allowing certain functions to execute in the groovy sandbox. This is normal as not all high use groovy functions are in the default safelist but more are added all the time.
 
 ### Manage with Puppet
+
 The following modules work great to manage a Jenkins instance.
 
 - maestrodev/rvm
@@ -64,6 +72,9 @@ rails {
   DOCKER_REGISTRY_CREDS_ID = 'access_docker_hub'
   DOCKER_REGISTRY_URL = 'https://hub.docker.io'
   AWS_DEFAULT_REGION = 'us-east-1'
+  SKIP_DEPLOY = 'false'
+  DOWNSTREAM_JOB_NAME = 'job_name'
+  DOWNSTREAM_JOB_PARAMS = [string(name: 'rubyVersion', value: version), string(name: 'checksum', value: checksum))]
 }
 ```
 
@@ -91,6 +102,9 @@ rails {
 - **DOCKER_REGISTRY_URL:** The private Docker registry URL. Required to build with Docker. [String]
 - **DOCKER_REGISTRY_CREDS_ID:** The private Docker registry credentials ID in Jenkins. Required to build with Docker. [String]
 - **AWS_DEFAULT_REGION:** The AWS region of you Elastic Container Registry
+- **SKIP_DEPLOY:** Do you want to skip deploying the code [String] Default: false
+- **DOWNSTREAM_JOB_NAME:** Required if DOWNSTREAM_JOB_PARAMS is not null or empty. The name of the downstream job you wish to run. [String]
+- **DOWNSTREAM_JOB_PARAMS:**  Special map of parameters and their corresponding values to pass to the downstream job. [Map]
 
 ## Testing Framework Support
 
@@ -135,4 +149,3 @@ If a Dockerfile is present in the repo and `DOCKER_REGISTRY_URL` and `DOCKER_REG
 ## [Changelog](CHANGELOG.md)
 
 ## [MIT License](LICENSE)
-
