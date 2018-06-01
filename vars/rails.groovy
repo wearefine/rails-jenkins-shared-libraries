@@ -3,6 +3,7 @@
 def call(body) {
   // evaluate the body block, and collect configuration into the object
   def config = [:]
+  def git
   body.resolveStrategy = Closure.DELEGATE_FIRST
   body.delegate = config
   body()
@@ -82,7 +83,7 @@ def call(body) {
 
       try {
         stage('Checkout') {
-          def git = checkout scm
+          git = checkout scm
           currentBuild.result = 'SUCCESS'
         }
       } catch(Exception e) {
@@ -95,7 +96,7 @@ def call(body) {
 
       // Set the git information into the config map
       config.BRANCH = git.GIT_BRANCH
-      config.GIT_COMMIT = GIT_COMMIT
+      config.GIT_COMMIT = git.GIT_COMMIT
       config.GIT_PREVIOUS_COMMIT = git.GIT_PREVIOUS_COMMIT
       config.GIT_PREVIOUS_SUCCESSFUL_COMMIT = git.GIT_PREVIOUS_SUCCESSFUL_COMMIT
       config.GIT_URL = git.GIT_URL

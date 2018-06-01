@@ -53,7 +53,7 @@ def call(Map config) {
           railsTestsDocker(config)
         }
 
-        if (config.SKIP_DEPLOY == 'false')
+        if (config.SKIP_DEPLOY == 'false') {
           railsDeployDocker(config)
         }
 
