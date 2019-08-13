@@ -1,3 +1,8 @@
+// Copyright (c) 2019 FINE Design Group, Inc.
+// 
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+
 #!/usr/bin/env groovy
 import hudson.tasks.test.AbstractTestResultAction;
 
