@@ -105,6 +105,9 @@ rails {
 - **SKIP_DEPLOY:** Do you want to skip deploying the code [String] Default: false
 - **DOWNSTREAM_JOB_NAME:** Required if DOWNSTREAM_JOB_PARAMS is not null or empty. The name of the downstream job you wish to run. [String]
 - **DOWNSTREAM_JOB_PARAMS:**  Special map of parameters and their corresponding values to pass to the downstream job. [Map]
+- **MASTER_BRANCH:** Specific what branch should assume the master branch role
+- **DEV_BRANCH:** Specific what branch should assume the dev branch role
+- **STAGE_BRANCH:** Specific what branch should assume the stage branch role
 
 ## Testing Framework Support
 
