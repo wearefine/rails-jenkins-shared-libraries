@@ -82,10 +82,10 @@ def call(body) {
     config.MASTER_BRANCH = "master"
   }
   if (!config.STAGE_BRANCH) {
-    config.MASTER_BRANCH = "stage"
+    config.STAGE_BRANCH = "stage"
   }
-  if (!config.dev_BRANCH) {
-    config.MASTER_BRANCH = "dev"
+  if (!config.DEV_BRANCH) {
+    config.DEV_BRANCH = "dev"
   }
 
 
