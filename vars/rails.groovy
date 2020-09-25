@@ -78,6 +78,15 @@ def call(body) {
   if (config.DOWNSTREAM_JOB_PARAMS && !config.DOWNSTREAM_JOB_NAME) {
     error 'You must define DOWNSTREAM_JOB_NAME in order to use DOWNSTREAM_JOB_PARAMS'
   }
+  if (!config.MASTER_BRANCH) {
+    config.MASTER_BRANCH = "master"
+  }
+  if (!config.STAGE_BRANCH) {
+    config.MASTER_BRANCH = "stage"
+  }
+  if (!config.dev_BRANCH) {
+    config.MASTER_BRANCH = "dev"
+  }
 
 
   node {

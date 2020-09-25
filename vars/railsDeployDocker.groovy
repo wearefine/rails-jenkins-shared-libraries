@@ -12,25 +12,25 @@ def call(Map config) {
       if (config.DEPLOY_VARS) {
         withCredentials(config.DEPLOY_VARS) {
           if (config.CAP_VERSION == '3'){
-            if (env.BRANCH_NAME == 'master') {
+            if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == config.MASTER_BRANCH) {
               sh "${config.container} cap prod deploy"
             }
-            else if(env.BRANCH_NAME == 'stage') {
+            else if(env.BRANCH_NAME == 'stage' || env.BRANCH_NAME == config.STAGE_BRANCH) {
               sh "${config.container} cap stage deploy"
             }
-            else if(env.BRANCH_NAME == 'dev') {
+            else if(env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == config.DEV_BRANCH) {
               sh "${config.container} cap dev deploy"
             }
             railsOtherBuildEnvsDocker(config)
           }
           if (config.CAP_VERSION == '2'){
-            if (env.BRANCH_NAME == 'master') {
+            if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == config.MASTER_BRANCH) {
               sh "${config.container} cap deploy -S loc=prod"
             }
-            else if(env.BRANCH_NAME == 'stage') {
+            else if(env.BRANCH_NAME == 'stage' || env.BRANCH_NAME == config.STAGE_BRANCH) {
               sh "${config.container} cap deploy -S loc=stage -S branch=stage"
             }
-            else if(env.BRANCH_NAME == 'dev') {
+            else if(env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == config.DEV_BRANCH) {
               sh "${config.container} cap deploy -S loc=dev -S branch=dev"
             }
             railsOtherBuildEnvsDocker(config)
@@ -39,25 +39,25 @@ def call(Map config) {
       }
       else {
         if (config.CAP_VERSION == '3'){
-          if (env.BRANCH_NAME == 'master') {
+          if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == config.MASTER_BRANCH) {
             sh "${config.container} cap prod deploy"
           }
-          else if(env.BRANCH_NAME == 'stage') {
+          else if(env.BRANCH_NAME == 'stage' || env.BRANCH_NAME == config.STAGE_BRANCH) {
             sh "${config.container} cap stage deploy"
           }
-          else if(env.BRANCH_NAME == 'dev') {
+          else if(env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == config.DEV_BRANCH) {
             sh "${config.container} cap dev deploy"
           }
           railsOtherBuildEnvsDocker(config)
         }
         if (config.CAP_VERSION == '2'){
-          if (env.BRANCH_NAME == 'master') {
+          if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == config.MASTER_BRANCH) {
             sh "${config.container} cap deploy -S loc=prod"
           }
-          else if(env.BRANCH_NAME == 'stage') {
+          else if(env.BRANCH_NAME == 'stage' || env.BRANCH_NAME == config.STAGE_BRANCH) {
             sh "${config.container} cap deploy -S loc=stage -S branch=stage"
           }
-          else if(env.BRANCH_NAME == 'dev') {
+          else if(env.BRANCH_NAME == 'dev' || env.BRANCH_NAME == config.DEV_BRANCH) {
             sh "${config.container} cap deploy -S loc=dev -S branch=dev"
           }
           railsOtherBuildEnvsDocker(config)
