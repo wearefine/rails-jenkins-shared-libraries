@@ -1,9 +1,9 @@
+#!/usr/bin/env groovy
 // Copyright (c) 2019 FINE Design Group, Inc.
 // 
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-#!/usr/bin/env groovy
 
 def call(Map config) {
   if (!config.DOCKER_REGISTRY_CREDS_ID) {
