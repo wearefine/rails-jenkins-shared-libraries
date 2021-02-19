@@ -9,6 +9,8 @@ def call(Map config) {
   try {
     stage('Deploy') {
       milestone label: 'Deploy'
+      echo "ENV_BRANCH_NAME: ${env.BRANCH_NAME}"
+      echo "CONFIG_BRANCH_NAME: ${config.MASTER_BRANCH}"
       sshagent([config.SSH_AGENT_ID]) {
         if (config.DEPLOY_VARS) {
           withCredentials(config.DEPLOY_VARS) {
