@@ -28,6 +28,7 @@ def call(Map config) {
       currentBuild.result = 'SUCCESS'
     }
   } catch(Exception e) {
+    sh "${config.container} chown -R ${config.JENKINS_UID}:${config.JENKINS_GID} /app"
     currentBuild.result = 'FAILURE'
     if (config.DEBUG == 'false') {
       railsSlack(config.SLACK_CHANNEL)
