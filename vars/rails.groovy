@@ -13,6 +13,9 @@ def call(body) {
   body.delegate = config
   body()
 
+  config.JENKINS_UID = "116"
+  config.JENKINS_GID = "999"
+
   if (!config.RAILS_ENV) {
     env.RAILS_ENV = "test"
   }

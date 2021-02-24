@@ -62,7 +62,7 @@ def call(Map config) {
           railsDeployDocker(config)
         }
 
-        sh "${config.container} chown -R 1003:1004 /app"
+        sh "${config.container} chown -R ${config.JENKINS_UID}:${config.JENKINS_GID} /app"
       } // SSH agent
     } // MySQL container
   } // withRegistry
