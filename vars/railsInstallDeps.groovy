@@ -7,8 +7,8 @@
 
 def call(Map config) {
   try {
-    stage('Install Dependancies') {
-      milestone label: 'Install Dependancies'
+    stage('Install Dependencies') {
+      milestone label: 'Install Dependencies'
       retry(2) {
         railsRvm('bundle install')
       }
