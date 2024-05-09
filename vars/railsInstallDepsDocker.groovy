@@ -6,8 +6,8 @@
 
 def call(Map config) {
   try {
-    stage('Install Dependancies') {
-      milestone label: 'Install Dependancies'
+    stage('Install Dependencies') {
+      milestone label: 'Install Dependencies'
       retry(2) {
         sh "${config.container} bundle install --quiet --jobs=4"
       }
