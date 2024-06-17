@@ -21,17 +21,17 @@ def call(String channel){
     }
     started = "Build started"
     test_results_string = ''
-    //slackSend channel: channel, failOnError: true, color: color, message: "${env.JOB_NAME} - ${env.BUILD_DISPLAY_NAME} ${started} (<${env.BUILD_URL}|Open>)\n${test_results_string}"
+    slackSend channel: channel, failOnError: true, color: color, message: "${env.JOB_NAME} - ${env.BUILD_DISPLAY_NAME} ${started} (<${env.BUILD_URL}|Open>)\n${test_results_string}"
   }
   else if(currentBuild.result == 'SUCCESS'){
     color = 'good'
     results()
-    //slackSend channel: channel, failOnError: true, color: color, message: "${env.JOB_NAME} - ${env.BUILD_DISPLAY_NAME} *${currentBuild.result}* (<${env.BUILD_URL}|Open>)\n${test_results_string}"
+    slackSend channel: channel, failOnError: true, color: color, message: "${env.JOB_NAME} - ${env.BUILD_DISPLAY_NAME} *${currentBuild.result}* (<${env.BUILD_URL}|Open>)\n${test_results_string}"
   }
   else {
     color = 'danger'
     results()
-    //slackSend channel: channel, failOnError: true, color: color, message: "${env.JOB_NAME} - ${env.BUILD_DISPLAY_NAME} *${currentBuild.result}* (<${env.BUILD_URL}|Open>)\n${test_results_string}"
+    slackSend channel: channel, failOnError: true, color: color, message: "${env.JOB_NAME} - ${env.BUILD_DISPLAY_NAME} *${currentBuild.result}* (<${env.BUILD_URL}|Open>)\n${test_results_string}"
   }
 }
 
